@@ -1,0 +1,5 @@
+measure:
+  cppchrono:
+    - time
+  libpfm4:
+    - INST_RETIRED
