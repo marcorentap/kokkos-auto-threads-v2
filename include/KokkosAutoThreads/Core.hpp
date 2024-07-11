@@ -11,6 +11,8 @@ struct Config {
   int numIterations;
   std::string databasePath;
   std::string tempPath;
+  std::string programPath;
+  std::vector<std::string> args;
 };
 
 static Config ParseConfigFile(std::string configPath);
@@ -31,8 +33,8 @@ class Executor {
   // static std::string dbName = "kokkosautothreads.db";
 
   std::string GetFullLibPath(std::string libname);
-  void ExecIteration();
-  void ExecProgram();
+  void ExecProgram(int iter, int numThreads);
+  void ExecIteration(int iter);
 
  public:
   Executor(Config config);

@@ -1,8 +1,10 @@
 #include <dlfcn.h>
 #include <link.h>
+#include <sys/wait.h>
 
 #include <KokkosAutoThreads/Core.hpp>
 #include <format>
+#include <iostream>
 #include <stdexcept>
 
 Executor::Executor(Config config) : config(config) {
@@ -29,20 +31,51 @@ std::string Executor::GetFullLibPath(std::string libname) {
   return linkMap->l_name;
 }
 
-void Executor::ExecProgram() {
-  //
+void Executor::ExecProgram(int iter, int numThreads) {
+  int pid;
+
+  pid = fork();
+  if (pid < 0) {
+    std::string err = std::format("cannot fork child. {}", strerror(errno));
+    throw std::runtime_error(err);
+  }
+
+  if (pid == 0) {
+    // Create argv
+    auto argv = new char *[config.args.size() + 3];
+
+    // Program path and user-provided arguments
+    argv[0] = const_cast<char *>(config.programPath.c_str());
+    for (int i = 0; i < config.args.size(); i++) {
+      argv[i + 1] = const_cast<char *>(config.args[i].c_str());
+    }
+    // Num threads arugments
+    auto threadArg = std::format("--kokkos-num-threads={}", numThreads);
+    argv[config.args.size() + 1] = const_cast<char *>(threadArg.c_str());
+    // Kokkos tools
+    auto katLibArg = std::format("--kokkos-tools-libs={}", katLibPath);
+    argv[config.args.size() + 2] = const_cast<char *>(katLibArg.c_str());
+    // NULL terminate
+    argv[config.args.size() + 3] = 0;
+
+    execv(argv[0], argv);
+  } else {
+    int wstatus;
+    wait(&wstatus);
+    if (wstatus != EXIT_SUCCESS) {
+      throw std::runtime_error("child exited unsuccessfully");
+    }
+  }
 }
 
-void Executor::ExecIteration() {
+void Executor::ExecIteration(int iter) {
   for (int t = config.startNumThreads; t <= config.stopNumThreads; t++) {
-    ExecProgram();
+    ExecProgram(iter, t);
   }
 }
 
 void Executor::Execute() {
   for (int i = 0; i < config.numIterations; i++) {
-    ExecIteration();
+    ExecIteration(i);
   }
 }
-
-
