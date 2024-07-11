@@ -5,7 +5,7 @@
 #include <format>
 #include <stdexcept>
 
-Executor::Executor(ExecutorConfig config) : config(config) {
+Executor::Executor(Config config) : config(config) {
   katLibPath = GetFullLibPath(katLibName);
 }
 

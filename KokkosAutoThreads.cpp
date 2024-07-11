@@ -1,3 +1,4 @@
+#include <KokkosAutoThreads/Core.hpp>
 #include <KokkosAutoThreads/Lib/ArgParse.hpp>
 #include <exception>
 #include <filesystem>
@@ -5,6 +6,15 @@
 #include <stdexcept>
 
 std::string configFilePath;
+
+Config ParseConfigFile(std::string configPath) {
+  return Config{.measures = {{"cppchrono", {"time"}}},
+                .startNumThreads = 1,
+                .stopNumThreads = 4,
+                .numIterations = 3,
+                .databasePath = "kokkosautothreads.db",
+                .tempPath = "kokkosautothreads.tmp"};
+}
 
 int main(int argc, char *argv[]) {
   // Parse arguments

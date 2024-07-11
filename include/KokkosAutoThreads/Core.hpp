@@ -4,22 +4,26 @@
 #include <KokkosAutoThreads/Lib/Json.hpp>
 #include <MPerf/Core.hpp>
 
+struct Config {
+  std::unordered_map<std::string, std::vector<std::string>> measures;
+  int startNumThreads;
+  int stopNumThreads;
+  int numIterations;
+  std::string databasePath;
+  std::string tempPath;
+};
+
+static Config ParseConfigFile(std::string configPath);
+
 class Executor {
   using json = nlohmann::json;
 
  private:
-  struct ExecutorConfig {
-    std::unordered_map<std::string, std::vector<std::string>> measures;
-    int startNumThreads;
-    int stopNumThreads;
-    int numIterations;
-    std::string databasePath;
-    std::string tempPath;
-  } config;
   std::string GetFullLibPath();
+  Config config;
 
   std::string katLibName = "libkokkosautothreads.so";
-  std::string katLibPath = ""; // Absolute path to lib
+  std::string katLibPath = "";  // Absolute path to lib
   //   static std::string progLogName = "kokkosautothreads.tmp.json";
   // static std::string logName = "kokkosautothreads.json";
   // static std::string libName = "libkokkosautothreads.so";
@@ -31,9 +35,8 @@ class Executor {
   void ExecProgram();
 
  public:
-  Executor(ExecutorConfig config);
+  Executor(Config config);
   void Execute();
-  static ExecutorConfig ParseConfigFile(std::string configPath);
 };
 
 #endif
