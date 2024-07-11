@@ -15,7 +15,17 @@ struct Config {
   std::vector<std::string> args;
 };
 
-static Config ParseConfigFile(std::string configPath);
+static Config ParseConfigFile(std::string configPath) {
+  return Config{
+      .measures = {{"cppchrono", {"time"}}},
+      .startNumThreads = 1,
+      .stopNumThreads = 4,
+      .numIterations = 3,
+      .databasePath = "kokkosautothreads.db",
+      .tempPath = "kokkosautothreads.tmp",
+  };
+}
+
 
 class Executor {
   using json = nlohmann::json;
