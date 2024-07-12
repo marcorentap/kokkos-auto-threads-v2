@@ -2,7 +2,10 @@
 #define KOKKOSAUTOTHREADS_HPP
 
 #include <KokkosAutoThreads/Lib/Json.hpp>
+#include <MPerf/Backends/CPPChrono.hpp>
 #include <MPerf/Core.hpp>
+
+const std::string KAT_ENVAR_CONFIG = "KAT_ENVAR_CONFIG";
 
 struct Config {
   std::unordered_map<std::string, std::vector<std::string>> measures;
@@ -13,17 +16,21 @@ struct Config {
   std::string tempPath;
   std::string programPath;
   std::vector<std::string> args;
+  std::string configPath;
 };
 
 static Config ParseConfigFile(std::string configPath) {
-  return Config{
+  auto config = Config{
       .measures = {{"cppchrono", {"time"}}},
       .startNumThreads = 1,
       .stopNumThreads = 4,
       .numIterations = 3,
       .databasePath = "kokkosautothreads.db",
       .tempPath = "kokkosautothreads.tmp",
+      .configPath = configPath
   };
+
+  return config;
 }
 
 

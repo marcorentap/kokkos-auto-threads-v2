@@ -58,7 +58,20 @@ void Executor::ExecProgram(int iter, int numThreads) {
     // NULL terminate
     argv[config.args.size() + 3] = 0;
 
-    execv(argv[0], argv);
+    int ret;
+    ret = setenv(KAT_ENVAR_CONFIG.c_str(), config.configPath.c_str(), 1);
+    if (ret < 0) {
+      std::string err = std::format("cannot set environment variable {}. {}",
+                                    KAT_ENVAR_CONFIG, strerror(errno));
+      throw std::runtime_error(err);
+    }
+
+    ret = execv(argv[0], argv);
+    if (ret < 0) {
+      std::string err =
+          std::format("child cannot exec program. {}", strerror(errno));
+      throw std::runtime_error(err);
+    }
   } else {
     int wstatus;
     wait(&wstatus);
